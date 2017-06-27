@@ -6,11 +6,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.github.loadmore.adapter.MyAdapter;
+import com.github.loadmore.inter.OnLoadMoreListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnLoadMoreListener{
 
     RecyclerView recyclerview;
     MyAdapter adapter;
@@ -27,7 +28,14 @@ public class MainActivity extends AppCompatActivity {
         recyclerview= (RecyclerView) findViewById(R.id.recyclerview);
 
         recyclerview.setLayoutManager(new LinearLayoutManager(this));
+
         recyclerview.setAdapter(adapter);
+        adapter.setOnLoadMoreListener(this);
+        adapter.setHasMoreData(true);
+    }
+
+    @Override
+    public void loadMore() {
 
     }
 }
