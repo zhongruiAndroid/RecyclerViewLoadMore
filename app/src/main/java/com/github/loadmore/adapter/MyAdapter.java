@@ -171,16 +171,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     }
     @Override
-    public void onViewAttachedToWindow(ViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-
-        Log.i("========","========onViewAttachedToWindow=getPosition"+holder.getPosition());
-        Log.i("========","========onViewAttachedToWindow=getAdapterPosition"+holder.getAdapterPosition());
-        Log.i("========","========onViewAttachedToWindow=getOldPosition"+holder.getOldPosition());
-        Log.i("========","========onViewAttachedToWindow=getLayoutPosition"+holder.getLayoutPosition());
-    }
-
-    @Override
     public int getItemViewType(int position) {
         if(list!=null&&onLoadMoreListener!=null&&position==getItemCount()-1){
             if(isLoadError){

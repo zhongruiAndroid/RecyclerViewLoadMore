@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
                 Log.i("=========",recyclerview.getScrollState()+"==========loadMore"+recyclerview.isComputingLayout());
                 if(flag){
                     return;
-                }
+                }adapter.notifyDataSetChanged();
                 recyclerview.postDelayed(new Runnable() {
                     @Override
                     public void run() {
