@@ -2,6 +2,7 @@ package com.github.loadmore.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,58 +20,182 @@ import java.util.List;
  */
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
-    private final int load_more_view_type=100;
+    /*正常view item*/
+    private final int normal_view = 2000;
+    /*标记显示加载更多的view*/
+    private final int load_more_view_type = 1000;
+    /*标记暂无更多数据的view*/
+    private final int no_more_view_type = 1001;
+    /*标记加载失败的view*/
+    private final int load_error_view_type = 1002;
+    /*回调方法,触发加载更多*/
     private OnLoadMoreListener onLoadMoreListener;
-    private boolean hasMoreData=false;
+    private int pageSize;
+    /***是否还有更多数据,没有更多数据显示"暂无更多"*/
+    private boolean hasMoreData = false;
+    /*** 加载是否失败,用于点击重新加载*/
+    private boolean isLoadError;
+    /*** 是否隐藏暂无内容的提示*/
+    private boolean isHiddenPromptView = false;
+
     LayoutInflater inflater;
     Context context;
     List<String> list;
 
-    public MyAdapter(Context context) {
+    /**
+     * pageSize setList或addList size如果小于pageSize,标记没有更多数据了
+     *
+     * @param context
+     * @param pageSize
+     */
+    public MyAdapter(Context context, int pageSize) {
         this.inflater = LayoutInflater.from(context);
         this.context = context;
+        this.pageSize = pageSize;
+    }
+
+    public void setHiddenPromptView(boolean hiddenPromptView) {
+        isHiddenPromptView = hiddenPromptView;
+    }
+
+    /**
+     * 加载是否失败
+     *
+     * @return
+     */
+    public boolean isLoadError() {
+        return isLoadError;
+    }
+
+    public void setHasMoreData(boolean hasMoreData) {
+        this.hasMoreData = hasMoreData;
     }
 
     public void setList(List<String> list) {
-        this.list = list;
+        setList(list, false);
     }
+
+    public void setList(List<String> list, boolean isNotifyData) {
+        if (list == null || list.size() == 0 || list.size() < pageSize) {
+            hasMoreData = false;
+        }
+        hasMoreData = true;
+        this.list = list;
+        if (isNotifyData) {
+            notifyDataSetChanged();
+        }
+    }
+
     public void addList(List<String> list) {
+        addList(list, false);
+    }
+
+    public void addList(List<String> list, boolean isNotifyData) {
+        if (list == null || list.size() == 0) {
+            hasMoreData = false;
+            return;
+        } else if (list.size() < pageSize) {
+            hasMoreData = false;
+        }
+        hasMoreData = true;
         this.list.addAll(this.list);
+        if (isNotifyData) {
+            notifyDataSetChanged();
+        }
     }
 
     @Override
     public MyAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ViewHolder viewHolder;
-        if(viewType==load_more_view_type){
-            LoadMoreView loadMoreView=new LoadMoreView(context);
-            TextView textView=new TextView(context);
-            textView.setText("正在加载...");
+        if (viewType == normal_view) {//正常item view  viewType == normal_view
+            View view = inflater.inflate(R.layout.item_layout, parent, false);
+            viewHolder = new ViewHolder(view);
+            return viewHolder;
+        } else {
+            LoadMoreView loadMoreView = new LoadMoreView(context);
+            loadMoreView.setBackgroundColor(context.getResources().getColor(R.color.colorAccent));
+            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.height=110;
+            TextView textView = new TextView(context);
+            switch (viewType) {
+                case load_more_view_type://加载更多view
+                    textView.setText("正在加载更多...");
+                    break;
+                case no_more_view_type://暂无更多view
+                    if(isHiddenPromptView){
+                        layoutParams.height=0;
+                    }
+                    textView.setText("暂无更多");
+                    break;
+                case load_error_view_type://加载失败view
+                    textView.setText("加载失败,点击重试");
+                    break;
+            }
+            loadMoreView.setLayoutParams(layoutParams);
+            loadMoreView.setViewTag(load_more_view_type);
             loadMoreView.addView(textView);
             loadMoreView.setGravity(Gravity.CENTER);
-            viewHolder=new ViewHolder(loadMoreView);
-        }else{
-            View view = inflater.inflate(R.layout.item_layout, parent, false);
-            viewHolder=new ViewHolder(view);
+            if(isHiddenPromptView){
+                loadMoreView.setVisibility(View.GONE);
+            }else{
+                loadMoreView.setVisibility(View.VISIBLE);
+            }
+            viewHolder = new ViewHolder(loadMoreView);
+            return viewHolder;
         }
-        return viewHolder;
+    }
+    @Override
+    public void onBindViewHolder(final MyAdapter.ViewHolder holder, int position) {
+        Log.i("============","============"+position);
+        if(position<=getItemCount()-2){
+            holder.textView.setText(list.get(position));
+        }else{
+            if(onLoadMoreListener!=null){
+                switch (holder.getItemViewType()){
+                    case load_more_view_type:
+                        onLoadMoreListener.loadMore();
+                        break;
+                    case load_error_view_type:
+                        holder.loadMoreView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                TextView childAt = (TextView) holder.loadMoreView.getChildAt(0);
+                                childAt.setText("正在加载更多...");
+                                onLoadMoreListener.loadMore();
+                            }
+                        });
+                        break;
+                }
+            }
+        }
+
+    }
+    @Override
+    public void onViewAttachedToWindow(ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+
+        Log.i("========","========onViewAttachedToWindow=getPosition"+holder.getPosition());
+        Log.i("========","========onViewAttachedToWindow=getAdapterPosition"+holder.getAdapterPosition());
+        Log.i("========","========onViewAttachedToWindow=getOldPosition"+holder.getOldPosition());
+        Log.i("========","========onViewAttachedToWindow=getLayoutPosition"+holder.getLayoutPosition());
     }
 
     @Override
     public int getItemViewType(int position) {
-        if(position==list.size()){
-            return load_more_view_type;
+        if(list!=null&&onLoadMoreListener!=null&&position==getItemCount()-1){
+            if(isLoadError){
+                return load_error_view_type;
+            }else if(hasMoreData){
+                return load_more_view_type;
+            }else{
+                return no_more_view_type;
+            }
         }
-        return super.getItemViewType(position);
+        return normal_view;
     }
-
-    @Override
-    public void onBindViewHolder(MyAdapter.ViewHolder holder, int position) {
-        holder.textView.setText(list.get(position));
-    }
-
     @Override
     public int getItemCount() {
-        if(onLoadMoreListener!=null&&hasMoreData){
+        if(onLoadMoreListener!=null){
             return list==null?0:list.size()+1;
         }else{
             return list==null?0:list.size();
@@ -93,7 +218,5 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         this.onLoadMoreListener = onLoadMoreListener;
     }
 
-    public void setHasMoreData(boolean hasMoreData) {
-        this.hasMoreData = hasMoreData;
-    }
+
 }

@@ -11,6 +11,16 @@ import android.widget.LinearLayout;
  */
 
 public class LoadMoreView extends LinearLayout {
+    private int viewTag;
+
+    public void setViewTag(int tag) {
+        this.viewTag = tag;
+    }
+
+    public int getViewTag() {
+        return viewTag;
+    }
+
     public LoadMoreView(Context context) {
         super(context);
     }
