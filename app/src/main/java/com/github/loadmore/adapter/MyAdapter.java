@@ -1,6 +1,7 @@
 package com.github.loadmore.adapter;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
@@ -20,13 +21,14 @@ import java.util.List;
  */
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
+    Handler handler;
     /*正常view item*/
     private final int normal_view = 2000;
-    /*标记显示加载更多的view*/
+    /*显示加载更多*/
     private final int load_more_view_type = 1000;
-    /*标记暂无更多数据的view*/
+    /*暂无更多数据*/
     private final int no_more_view_type = 1001;
-    /*标记加载失败的view*/
+    /*加载失败*/
     private final int load_error_view_type = 1002;
     /*回调方法,触发加载更多*/
     private OnLoadMoreListener onLoadMoreListener;
@@ -66,6 +68,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     public boolean isLoadError() {
         return isLoadError;
     }
+    public void setLoadError(boolean loadError) {
+        isLoadError = loadError;
+    }
 
     public void setHasMoreData(boolean hasMoreData) {
         this.hasMoreData = hasMoreData;
@@ -78,8 +83,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     public void setList(List<String> list, boolean isNotifyData) {
         if (list == null || list.size() == 0 || list.size() < pageSize) {
             hasMoreData = false;
+        }else{
+            hasMoreData = true;
         }
-        hasMoreData = true;
         this.list = list;
         if (isNotifyData) {
             notifyDataSetChanged();
@@ -93,12 +99,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     public void addList(List<String> list, boolean isNotifyData) {
         if (list == null || list.size() == 0) {
             hasMoreData = false;
-            return;
         } else if (list.size() < pageSize) {
             hasMoreData = false;
+            this.list.addAll(list);
+        }else{
+            hasMoreData = true;
+            this.list.addAll(list);
         }
-        hasMoreData = true;
-        this.list.addAll(this.list);
         if (isNotifyData) {
             notifyDataSetChanged();
         }
@@ -153,7 +160,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             if(onLoadMoreListener!=null){
                 switch (holder.getItemViewType()){
                     case load_more_view_type:
-                        onLoadMoreListener.loadMore();
+                        getHandler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                isLoadError=false;
+                                onLoadMoreListener.loadMore();
+                            }
+                        });
                         break;
                     case load_error_view_type:
                         holder.loadMoreView.setOnClickListener(new View.OnClickListener() {
@@ -161,7 +174,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                             public void onClick(View v) {
                                 TextView childAt = (TextView) holder.loadMoreView.getChildAt(0);
                                 childAt.setText("正在加载更多...");
-                                onLoadMoreListener.loadMore();
+                                getHandler().post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        isLoadError=false;
+                                        onLoadMoreListener.loadMore();
+                                    }
+                                });
                             }
                         });
                         break;
@@ -208,5 +227,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         this.onLoadMoreListener = onLoadMoreListener;
     }
 
-
+    public Handler getHandler(){
+        if(handler==null){
+            handler=new Handler();
+        }
+        return handler;
+    }
 }
