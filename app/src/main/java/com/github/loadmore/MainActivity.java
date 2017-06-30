@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 
@@ -19,7 +20,7 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
     RecyclerView recyclerview;
     Button bt_listview;
     MyAdapter adapter;
-    boolean flag;
+    int  flag=0;
     private List<String> list;
 
     @Override
@@ -35,34 +36,42 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
 
         list = new ArrayList<>();
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 12; i++) {
             list.add("第"+i+"个item");
         }
         adapter.setList(list);
+        View inflate = LayoutInflater.from(this).inflate(R.layout.item_nomore_view, null);
+        adapter.setNoMoreView(inflate);
+        View inflate2 = LayoutInflater.from(this).inflate(R.layout.item_load_view, null);
+        adapter.setLoadView(inflate2);
+        View inflate3 = LayoutInflater.from(this).inflate(R.layout.item_error_view, null);
+        adapter.setErrorView(inflate3);
         recyclerview.setAdapter(adapter);
         adapter.setOnLoadMoreListener(this);
     }
 
     @Override
     public void loadMore() {
-        if(flag){
-            recyclerview.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    adapter.addList(null);
+        recyclerview.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(flag==4){
                     adapter.setHasMoreData(false);
                     adapter.notifyDataSetChanged();
+                }else if(flag%3==0){
+                    adapter.addList(list);
+                    adapter.notifyDataSetChanged();
+                }else if(flag%3==1){
+                    adapter.setLoadError(true);
+                    adapter.notifyDataSetChanged();
+                }else{
+                    adapter.addList(list);
+                    adapter.notifyDataSetChanged();
                 }
-            },2000);
-           return;
-        }
-        flag=true;
-//        adapter.setHiddenPromptView(true);
-        adapter.addList(list);
-        adapter.setLoadError(true);
-        adapter.notifyDataSetChanged();
+                flag++;
+            }
+        },1300);
     }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()){
