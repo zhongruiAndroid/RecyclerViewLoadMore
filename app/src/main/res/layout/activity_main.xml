@@ -11,7 +11,7 @@
     android:id="@+id/bt_listview"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="listview"
+    android:text="封装之后的adapter"
     android:textAllCaps="false"
     />
 
