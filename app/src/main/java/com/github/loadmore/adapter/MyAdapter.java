@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -156,17 +157,26 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     public void onBindViewHolder(final MyAdapter.ViewHolder holder, int position) {
         if(position<=getItemCount()-2){
             holder.textView.setText(list.get(position));
+            if(onLoadMoreListener!=null&&hasMoreData&&!isLoadError&&position==getItemCount()-2){
+                Log.i("=======","======="+position);
+                getHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        onLoadMoreListener.loadMore();
+                    }
+                });
+            }
         }else{
             if(onLoadMoreListener!=null){
                 switch (holder.getItemViewType()){
-                    case load_more_view_type:
+                    /*case load_more_view_type:
                         getHandler().post(new Runnable() {
                             @Override
                             public void run() {
                                 onLoadMoreListener.loadMore();
                             }
                         });
-                        break;
+                        break;*/
                     case load_error_view_type:
                         holder.bottomView.setOnClickListener(new View.OnClickListener() {
                             @Override

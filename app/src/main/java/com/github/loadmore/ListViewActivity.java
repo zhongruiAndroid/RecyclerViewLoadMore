@@ -2,43 +2,36 @@ package com.github.loadmore;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ListView;
 
-import com.github.loadmore.adapter.LoadMoreAdapter;
-import com.github.loadmore.adapter.LoadMoreViewHolder;
-import com.github.loadmore.inter.OnLoadMoreListener;
+import com.github.loadmore.adapter.LoadMoreLAdapter;
+import com.github.loadmore.adapter.LoadMoreLViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListViewActivity extends AppCompatActivity implements OnLoadMoreListener,View.OnClickListener{
+public class ListViewActivity extends AppCompatActivity implements LoadMoreLAdapter.OnLoadMoreListener,View.OnClickListener{
 
     int flag;
-    RecyclerView recycleListView;
+    ListView lv_list;
     List<String>list=new ArrayList<>();
-    private LoadMoreAdapter adapter;
+    private LoadMoreLAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-        recycleListView=(RecyclerView) findViewById(R.id.recycleListView);
-        recycleListView.setLayoutManager(new LinearLayoutManager(this));
-        adapter= new LoadMoreAdapter<String>(this, 10) {
+        lv_list=(ListView) findViewById(R.id.lv_list);
+        adapter= new LoadMoreLAdapter<String>(this,R.layout.item_layout,10) {
             @Override
-            public int getItemLayoutId(int viewType) {
-                return R.layout.item_layout;
-            }
-            @Override
-            public void bindData(LoadMoreViewHolder holder, int position, String bean) {
-                holder.setText(R.id.item_title,bean);
+            public void convert(LoadMoreLViewHolder loadMoreLViewHolder, String o) {
+                loadMoreLViewHolder.setText(R.id.item_title,o);
             }
         };
-        adapter.setOnLoadMoreListener(new LoadMoreAdapter.OnLoadMoreListener() {
+        adapter.setOnLoadMoreListener(new LoadMoreLAdapter.OnLoadMoreListener() {
             @Override
             public void loadMore() {
-                recycleListView.postDelayed(new Runnable() {
+                lv_list.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if(flag==4){
@@ -56,14 +49,14 @@ public class ListViewActivity extends AppCompatActivity implements OnLoadMoreLis
                         }
                         flag++;
                     }
-                },1300);
+                },0);
             }
         });
         for (int i = 0; i < 12; i++) {
             list.add("第"+i+"个item");
         }
         adapter.setList(list);
-        recycleListView.setAdapter(adapter);
+        lv_list.setAdapter(adapter);
     }
     @Override
     public void loadMore() {
