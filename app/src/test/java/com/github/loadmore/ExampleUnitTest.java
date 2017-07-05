@@ -11,6 +11,18 @@ public class ExampleUnitTest {
 
 
 
+    @Test
+    public void aaaa() throws Exception {
+        int a=2;
+        if (a==1){
+            System.out.println("1======"+a);
+        }else if(a==2){
+            System.out.println("2======"+a);
+        }else{
+            System.out.println("3======"+a);
+        }
+        a++;
+    }
 
 
 

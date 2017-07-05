@@ -3,7 +3,7 @@ package com.github.loadmore;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,8 +30,8 @@ public class MainActivity extends AppCompatActivity implements LoadMoreAdapter.O
         bt_listview= (Button) findViewById(R.id.bt_listview);
         bt_listview.setOnClickListener(this);
         recyclerview= (RecyclerView) findViewById(R.id.recyclerview);
-        recyclerview.setLayoutManager(new GridLayoutManager(this,3));
-//        recyclerview.setLayoutManager(new LinearLayoutManager(this));
+//        recyclerview.setLayoutManager(new GridLayoutManager(this,3));
+        recyclerview.setLayoutManager(new LinearLayoutManager(this));
 
         adapter= new LoadMoreAdapter<String>(this, 10) {
             @Override

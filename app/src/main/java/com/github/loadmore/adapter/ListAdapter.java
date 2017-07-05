@@ -1,12 +1,15 @@
 package com.github.loadmore.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.github.loadmore.ListViewActivity;
 import com.github.loadmore.R;
 import com.github.loadmore.inter.OnLoadMoreListener;
 
@@ -20,7 +23,21 @@ public class ListAdapter extends BaseAdapter {
     private Context context;
     private LayoutInflater inflater;
     private List<String>list;
+    private static ListViewActivity.AA a;
+    private static ListView listView;
 
+    private static Activity activity;
+    public void setListView(ListView listView) {
+        this.listView = listView;
+    }
+
+    public void setA(ListViewActivity.AA a) {
+        this.a = a;
+    }
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
+    }
 
     private OnLoadMoreListener onLoadMoreListener;
 
@@ -68,7 +85,7 @@ public class ListAdapter extends BaseAdapter {
         }
 
         if (position==list.size()-2){
-            this.onLoadMoreListener.loadMore();
+//            this.onLoadMoreListener.loadMore();
         }
         holder.textView.setText(list.get(position));
 
