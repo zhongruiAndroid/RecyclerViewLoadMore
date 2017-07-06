@@ -74,14 +74,14 @@ public class MainActivity extends AppCompatActivity implements LoadMoreAdapter.O
 //                    adapter.setHasMoreData(false);
 //                    adapter.notifyDataSetChanged();
                 }else if(flag%3==0){
-                    adapter.addList(getList());
-                    adapter.notifyDataSetChanged();
+//                    adapter.addList(getList());
+//                    adapter.notifyDataSetChanged();
                 }else if(flag%3==1){
-                    adapter.setLoadError(true);
-                    adapter.notifyDataSetChanged();
+//                    adapter.setLoadError(true);
+//                    adapter.notifyDataSetChanged();
                 }else{
-                    adapter.addList(getList());
-                    adapter.notifyDataSetChanged();
+//                    adapter.addList(getList());
+//                    adapter.notifyDataSetChanged();
                 }
                 flag++;
             }

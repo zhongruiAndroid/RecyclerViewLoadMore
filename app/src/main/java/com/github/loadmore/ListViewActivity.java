@@ -53,16 +53,12 @@ public class ListViewActivity extends AppCompatActivity implements  View.OnClick
                     public void run() {
                         Log.i("=========","----------loadMore");
                         if(flag==4){
-                            lAdapter.setHasMoreData(false);
-//                            lAdapter.notifyDataSetChanged();
-//                            return;
-//                            lAdapter.notifyDataSetChanged();
+                            lAdapter.setNoMoreData();
                         }else if(flag%3==0){
                             lAdapter.addList(getList());
                             lAdapter.notifyDataSetChanged();
                         }else if(flag%3==1){
-                            lAdapter.setLoadError(true);
-//                            lAdapter.notifyDataSetChanged();
+                            lAdapter.setLoadError();
                         }else{
                             lAdapter.addList(getList());
                             lAdapter.notifyDataSetChanged();

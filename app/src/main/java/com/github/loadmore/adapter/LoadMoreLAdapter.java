@@ -41,6 +41,8 @@ public abstract class LoadMoreLAdapter<T> extends BaseAdapter {
     private String noMoreViewText="暂无更多内容";
     private String errorViewText="加载失败,点击重试";
 
+    private boolean isEndLoad=true;
+
     protected List<T> mList;
     protected Context mContext;
     protected LayoutInflater mInflater;
@@ -54,18 +56,24 @@ public abstract class LoadMoreLAdapter<T> extends BaseAdapter {
         this.pageSize=pageSize;
         this.listView=listView;
 
+        loadView= getFootView(load_more_view_type);
+
+        errorView= getFootView(load_error_view_type);
+
+        noMoreView= getFootView(no_more_view_type);
+
     }
     public void setList(List<T> list) {
         setList(list,false);
     }
     public void setList(List<T> list,boolean isNotifyData) {
+        isLoadError=false;
         if (list == null || list.size() == 0 || list.size() < pageSize) {
             hasMoreData = false;
         } else {
             hasMoreData = true;
         }
         this.mList = list;
-        setFootView();
         if(isNotifyData){
             notifyDataSetChanged();
         }
@@ -122,10 +130,15 @@ public abstract class LoadMoreLAdapter<T> extends BaseAdapter {
         }
     }
     private void addFooterView(View view){
-        listView.addFooterView(view);
+        if(getFooterViewsCount()==0){
+            listView.addFooterView(view);
+        }
     }
     private void removeFooterView(View view){
         listView.removeFooterView(view);
+    }
+    private int getFooterViewsCount( ){
+        return listView.getFooterViewsCount();
     }
     public void addList(List<T> list) {
         addList(list, false);
@@ -140,7 +153,6 @@ public abstract class LoadMoreLAdapter<T> extends BaseAdapter {
             hasMoreData = true;
             this.mList.addAll(list);
         }
-        setFootView();
         if (isNotifyData) {
             notifyDataSetChanged();
         }
@@ -166,15 +178,22 @@ public abstract class LoadMoreLAdapter<T> extends BaseAdapter {
 
 
     @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        isEndLoad=true;
+    }
+
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position==getCount()-2&&onLoadMoreListener!=null&&hasMoreData&&!isLoadError){
-            Log.i("============","============"+position);
-            removeFooterView(loadView);
-            removeFooterView(errorView);
-            removeFooterView(noMoreView);
-//
-            addFooterView(loadView);
-            this.onLoadMoreListener.loadMore();
+        if (position==getCount()-2&&getCount()!=0&&onLoadMoreListener!=null&&isEndLoad&&!isLoadError){
+            //&&hasMoreData&&!isLoadError
+            if(hasMoreData){
+                isEndLoad=false;
+                addFooterView(loadView);
+                this.onLoadMoreListener.loadMore();
+            }else{
+                addFooterView(noMoreView);
+            }
 
         }
         ViewHolder holder = getViewHolder(position, convertView,parent);
@@ -283,42 +302,24 @@ public abstract class LoadMoreLAdapter<T> extends BaseAdapter {
     }
 
     /*是否加载失败*/
-    public void setLoadError(boolean loadError) {
-        isLoadError = loadError;
-        if(isLoadError){
-            removeFooterView(loadView);
-            removeFooterView(errorView);
-            removeFooterView(noMoreView);
-
-            addFooterView(errorView);
-            errorView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    isLoadError=false;
-                    hasMoreData=true;
-                    removeFooterView(loadView);
-                    removeFooterView(errorView);
-                    removeFooterView(noMoreView);
-
-                    addFooterView(loadView);
-                    onLoadMoreListener.loadMore();
-                    Log.i("==========","====4======"+listView.getFooterViewsCount());
-                }
-            });
-        }
-
+    public void setLoadError() {
+        removeFooterView(loadView);
+        addFooterView(errorView);
+        errorView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeFooterView(errorView);
+                addFooterView(loadView);
+                isEndLoad=false;
+                onLoadMoreListener.loadMore();
+            }
+        });
     }
     /*是否还有更多数据*/
-    public void setHasMoreData(boolean hasMoreData) {
-        this.hasMoreData = hasMoreData;
+    public void setNoMoreData() {
+        this.hasMoreData = false;
         removeFooterView(loadView);
-        removeFooterView(errorView);
-        removeFooterView(noMoreView);
-        if(hasMoreData){
-            addFooterView(loadView);
-        }else{
-            addFooterView(noMoreView);
-        }
+        addFooterView(noMoreView);
     }
     /*设置正在加载的view*/
     public void setLoadView(View loadView) {

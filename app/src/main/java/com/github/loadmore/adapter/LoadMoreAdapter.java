@@ -95,7 +95,6 @@ public abstract class LoadMoreAdapter<T> extends RecyclerView.Adapter<LoadMoreVi
                 getHandler().post(new Runnable() {
                     @Override
                     public void run() {
-                        notifyDataSetChanged();
                         isEndLoad=false;
                         onLoadMoreListener.loadMore();
                     }
@@ -123,6 +122,7 @@ public abstract class LoadMoreAdapter<T> extends RecyclerView.Adapter<LoadMoreVi
                                 getHandler().post(new Runnable() {
                                     @Override
                                     public void run() {
+                                        isEndLoad=false;
                                         onLoadMoreListener.loadMore();
                                     }
                                 });
@@ -212,6 +212,7 @@ public abstract class LoadMoreAdapter<T> extends RecyclerView.Adapter<LoadMoreVi
             hasMoreData = true;
         }
         this.mList = list;
+        isEndLoad=true;
         if (isNotifyData) {
             notifyDataSetChanged();
         }
@@ -231,6 +232,7 @@ public abstract class LoadMoreAdapter<T> extends RecyclerView.Adapter<LoadMoreVi
             hasMoreData = true;
             this.mList.addAll(list);
         }
+        isEndLoad=true;
         if (isNotifyData) {
             notifyDataSetChanged();
         }
