@@ -53,6 +53,7 @@ public abstract class LoadMoreLAdapter<T> extends BaseAdapter {
         this.mItemLayoutId = itemLayoutId;
         this.pageSize=pageSize;
         this.listView=listView;
+
     }
     public void setList(List<T> list) {
         setList(list,false);
@@ -167,10 +168,11 @@ public abstract class LoadMoreLAdapter<T> extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (position==getCount()-2&&onLoadMoreListener!=null&&hasMoreData&&!isLoadError){
+            Log.i("============","============"+position);
             removeFooterView(loadView);
             removeFooterView(errorView);
             removeFooterView(noMoreView);
-
+//
             addFooterView(loadView);
             this.onLoadMoreListener.loadMore();
 

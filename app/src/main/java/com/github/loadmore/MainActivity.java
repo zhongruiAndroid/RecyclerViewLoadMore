@@ -45,12 +45,7 @@ public class MainActivity extends AppCompatActivity implements LoadMoreAdapter.O
             }
         };
 
-        list = new ArrayList<>();
-
-        for (int i = 0; i < 13; i++) {
-            list.add("第"+i+"个item");
-        }
-        adapter.setList(list);
+        adapter.setList(getList());
         View inflate = LayoutInflater.from(this).inflate(R.layout.item_nomore_view, null);
 //        adapter.setNoMoreView(inflate);
         View inflate2 = LayoutInflater.from(this).inflate(R.layout.item_load_view, null);
@@ -61,22 +56,31 @@ public class MainActivity extends AppCompatActivity implements LoadMoreAdapter.O
         adapter.setOnLoadMoreListener(this);
     }
 
+    private List getList() {
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < 13; i++) {
+            list.add("第"+i+"个item");
+        }
+        return list;
+    }
+
     @Override
     public void loadMore() {
         recyclerview.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(flag==4){
-                    adapter.setHasMoreData(false);
-                    adapter.notifyDataSetChanged();
+                if(flag==2){
+                    return;
+//                    adapter.setHasMoreData(false);
+//                    adapter.notifyDataSetChanged();
                 }else if(flag%3==0){
-                    adapter.addList(list);
+                    adapter.addList(getList());
                     adapter.notifyDataSetChanged();
                 }else if(flag%3==1){
                     adapter.setLoadError(true);
                     adapter.notifyDataSetChanged();
                 }else{
-                    adapter.addList(list);
+                    adapter.addList(getList());
                     adapter.notifyDataSetChanged();
                 }
                 flag++;

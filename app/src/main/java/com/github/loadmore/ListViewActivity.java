@@ -1,9 +1,11 @@
 package com.github.loadmore;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -20,7 +22,7 @@ public class ListViewActivity extends AppCompatActivity implements  View.OnClick
     }
     int flag;
     ListView lv_list;
-    List<String>list=new ArrayList<>();
+
     private ListAdapter listAdapter;
     private LoadMoreLAdapter lAdapter;
     @Override
@@ -28,10 +30,6 @@ public class ListViewActivity extends AppCompatActivity implements  View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         lv_list=(ListView) findViewById(R.id.lv_list);
-
-        for (int i = 0; i < 13; i++) {
-            list.add("第"+i+"个item");
-        }
         listAdapter=new ListAdapter(this);
         lAdapter=new LoadMoreLAdapter<String>(this,R.layout.item_layout,lv_list,10) {
             @Override
@@ -39,7 +37,7 @@ public class ListViewActivity extends AppCompatActivity implements  View.OnClick
                 viewHolder.setText(R.id.item_title,s);
             }
         };
-        lAdapter.setList(list);
+        lAdapter.setList(getList());
         lv_list.setAdapter(lAdapter);
         AA a=new AA();
         listAdapter.setA(a);
@@ -60,13 +58,13 @@ public class ListViewActivity extends AppCompatActivity implements  View.OnClick
 //                            return;
 //                            lAdapter.notifyDataSetChanged();
                         }else if(flag%3==0){
-                            lAdapter.addList(list);
+                            lAdapter.addList(getList());
                             lAdapter.notifyDataSetChanged();
                         }else if(flag%3==1){
                             lAdapter.setLoadError(true);
 //                            lAdapter.notifyDataSetChanged();
                         }else{
-                            lAdapter.addList(list);
+                            lAdapter.addList(getList());
                             lAdapter.notifyDataSetChanged();
                         }
                         flag++;
@@ -103,14 +101,15 @@ public class ListViewActivity extends AppCompatActivity implements  View.OnClick
             public void run() {
 //                lv_list.removeFooterView(textView);
             }
-        },6000);
+        },6000);*/
         lv_list.setOnScrollListener(new AbsListView.OnScrollListener() {
             private boolean mIsEnd = false;
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
+                Log.i("=====","==========1=====");
                 if (scrollState == SCROLL_STATE_IDLE) {
+                    Log.i("=====","=========2======");
                     if (mIsEnd) {
-                        listLoadMore();
                     }
                 }
             }
@@ -123,7 +122,16 @@ public class ListViewActivity extends AppCompatActivity implements  View.OnClick
                     mIsEnd = false;
                 }
             }
-        });*/
+        });
+    }
+
+    @NonNull
+    private List<String> getList() {
+        List<String>list=new ArrayList<>();
+        for (int i = 0; i < 13; i++) {
+            list.add("第"+i+"个item");
+        }
+        return list;
     }
 
 

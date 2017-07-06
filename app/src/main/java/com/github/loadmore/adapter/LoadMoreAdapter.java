@@ -40,7 +40,7 @@ public abstract class LoadMoreAdapter<T> extends RecyclerView.Adapter<LoadMoreVi
     private String loadViewText = "正在加载更多...";
     private String noMoreViewText = "暂无更多";
     private String errorViewText = "加载失败,点击重试";
-
+    private boolean isEndLoad=true;
     protected List<T> mList;
     protected Context mContext;
     protected LayoutInflater mInflater;
@@ -86,14 +86,17 @@ public abstract class LoadMoreAdapter<T> extends RecyclerView.Adapter<LoadMoreVi
         return holder;
     }
 
+
     @Override
-    public void onBindViewHolder(LoadMoreViewHolder holder, int position) {
+    public void onBindViewHolder(final LoadMoreViewHolder holder, int position) {
         if (position <= getItemCount() - 2) {
             bindData(holder, position, mList.get(position));
-            if (onLoadMoreListener != null && hasMoreData && !isLoadError && position == getItemCount() - 2) {
+            if (onLoadMoreListener != null &&isEndLoad&& hasMoreData && !isLoadError && position == getItemCount() - 2) {
                 getHandler().post(new Runnable() {
                     @Override
                     public void run() {
+                        notifyDataSetChanged();
+                        isEndLoad=false;
                         onLoadMoreListener.loadMore();
                     }
                 });
@@ -116,7 +119,7 @@ public abstract class LoadMoreAdapter<T> extends RecyclerView.Adapter<LoadMoreVi
                             public void onClick(View v) {
                                 isLoadError = false;
                                 hasMoreData = true;
-                                notifyDataSetChanged();
+                                holder.bottomView.removeAllViews();
                                 getHandler().post(new Runnable() {
                                     @Override
                                     public void run() {
